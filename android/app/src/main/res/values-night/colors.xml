@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dark mode: the app opens on the game's dark background. -->
+<resources>
+    <color name="paper">#0F1712</color>
+</resources>

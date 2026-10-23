@@ -1,0 +1,26 @@
+/* ---------- scenarios: short hand-made challenges with a score ---------- */
+const SCEN=[
+ {id:'blato',n:'Iz blata',d:'Seoski klub, slaba ekipa, prazna kasa. Izbori plasman u Međuopštinsku ligu već prve sezone.',start:'p1',len:'1 sezona',
+  setup:s=>{s.money=Math.round(s.money*.4);s.squad.forEach(p=>{for(const [k] of STATS)p[k]=Math.max(1,p[k]-1);});},
+  end:(s,ev,sm)=>ev==='season'?{win:!!(sm.up&&sm.gate),score:s.table[0].pts*20+(sm.up&&sm.gate?400:0)+Math.max(0,Math.round(s.money/50000)),msg:sm.up&&sm.gate?'Plasman iz prve! Selo slavi celu noć.':`${sm.pos}. mesto. Livada ostaje livada još godinu dana.`}:null},
+ {id:'spas',n:'Spasi klub',d:'Srpska liga. Klub duguje 6M, kasa je prazna, navijači su besni. Preživi dve sezone: bez minusa i bar 6. mesto na kraju.',start:'p3',len:'2 sezone',
+  setup:s=>{s.money=150000;s.loans.push({w:50000,left:120,amt:6000000});s.fan=35;s.goodwill=35;},
+  end:(s,ev,sm)=>{if(ev!=='season')return null;if(s.money<0)return {win:false,score:s.scen.pts*5,msg:'Kasa je prazna. Banka preuzima klub.'};if(s.li<4)return {win:false,score:s.scen.pts*5,msg:'Ispadanje iz Srpske lige. Klub se gasi, selo plače.'};if(s.scen.n<2)return null;const ok=sm.pos<=6;return {win:ok,score:(ok?500:0)+s.scen.pts*10+Math.max(0,Math.round(s.money/100000)),msg:ok?'Klub je spašen. Dugovi se vraćaju, tribina peva.':`${sm.pos}. mesto. Novac je tu, ali ekipa nije izdržala.`};}},
+ {id:'opstanak',n:'Bitka za opstanak',d:'Prva liga, pet kola do kraja. Pretposlednji ste. Dva poslednja ispadaju.',start:'p4',len:'5 kola',
+  setup:s=>{s.squad.forEach(p=>{for(const [k] of STATS)if(Math.random()<.7)p[k]=Math.max(1,p[k]-1);});s.harmony=42;s.week=9;const T=s.table;T.forEach((t,i)=>{t.p=9;t.w=0;t.d=0;t.l=0;t.gf=0;t.ga=0;t.pts=0;});T[0].pts=6;T[0].w=1;T[0].d=3;T[0].l=5;T[0].gf=7;T[0].ga=14;s.teams.forEach((t,i)=>{if(i){const pts=Math.round(7+(t.r-LEAGUES[s.li].lvl)*3+R(0,6));T[i].pts=pts;T[i].w=Math.floor(pts/3);T[i].d=pts%3;T[i].l=9-T[i].w-T[i].d;T[i].gf=10+RI(0,6);T[i].ga=10+RI(0,6);}});const lo=s.teams.map((t,i)=>i).filter(i=>i).sort((a,b)=>T[a].pts-T[b].pts)[0];T[lo].pts=5;},
+  end:(s,ev,sm)=>ev==='season'?{win:sm.pos<=6,score:(sm.pos<=6?300:0)+(s.table[0].pts-6)*40+(sm.pos<=4?200:0),msg:sm.pos<=6?`Opstanak! ${sm.pos}. mesto.`:'Ispadanje. Prva liga ide bez vas.'}:null},
+ {id:'domaci',n:'Samo naši',d:'Srpska liga, samo domaći igrači i akademija, nikakva pojačanja. Uđi u Prvu ligu za dve sezone.',start:'p3',chall:'local',len:'2 sezone',
+  setup:s=>{},
+  end:(s,ev,sm)=>{if(ev!=='season')return null;if(sm.up&&sm.gate)return {win:true,score:800-(s.scen.n-1)*250+s.table[0].pts*10,msg:'Prva liga, sa decom iz sela!'};if(s.scen.n>=2)return {win:false,score:s.scen.pts*5,msg:'Dve sezone, bez plasmana. Ali deca su naučila mnogo.'};return null;}},
+ {id:'evropa',n:'Evropska noć',d:'Osmina finala Lige Evrope. Koliko daleko ide tvoj klub?',start:'p5',len:'do 7 utakmica',
+  setup:s=>{s.week=14;s.euro={c:'uel',stage:'ko2',r2:0,used:[],agg:[0,0],best:'Liga Evrope, osmina finala'};s.euro.opp=euroOpp(EURO.uel.ko+.4);},
+  end:(s,ev)=>{if(ev!=='euro'||s.euro.stage!=='done')return null;const r=s.euro.r2;return {win:r>=2,score:[100,250,450,700,1200][Math.min(4,r)],msg:r>=4?'Pobednici Lige Evrope!':`Kraj puta: ${KO2[Math.min(3,r)].toLowerCase()}.`};}}];
+function scenBest(id){return ((meta().scen||{})[id])||null;}
+function scenCard(){return `<section class="card"><span class="lbl">Scenariji</span><h3>Kratki izazovi</h3><div class="hint">Gotov početak, jasan cilj, rezultat. Bez veština iz prodavnice nasleđa, da bude fer.</div>${SCEN.map(c=>{const b=scenBest(c.id);return `<button class="choice" data-a="scen" data-v="${c.id}"><b>${esc(c.n)} <span class="hint">· ${esc(c.len)}</span>${b?` <span class="chip ${b.won?'good':''}">${b.won?'✓ ':''}${b.best}</span>`:''}</b><span class="fx">${esc(c.d)}</span></button>`;}).join('')}</section>`;}
+function startScen(id){const c=SCEN.find(x=>x.id===id);if(!c)return;Object.assign(SET,{start:c.start,diff:'normal',chall:c.chall||'none',realOn:false,real:null});SET._wk=1;try{newGame();}finally{delete SET._wk;}
+  S.scen={id,n:0,pts:0,done:false};c.setup(S);S.modal=null;S.mq=[];news(`Scenario: ${c.n}. ${c.d}`);S.mq.push({type:'outcome',title:`Scenario: ${c.n}`,msgs:[c.d,`Trajanje: ${c.len}.`]});}
+function scenCheck(ev,sm){const s=S;if(!s||!s.scen||s.scen.done)return;const c=SCEN.find(x=>x.id===s.scen.id);if(!c)return;if(ev==='season'){s.scen.n++;s.scen.pts+=s.table[0].pts;}
+  const r=c.end(s,ev,sm||s.sum||{});if(!r)return;s.scen.done=true;const m=meta();m.scen=m.scen||{};const b=m.scen[c.id]||{best:0,won:false};m.scen[c.id]={best:Math.max(b.best,r.score),won:b.won||r.win};saveMeta();
+  s.mq.push({type:'scenend',win:r.win,score:r.score,msg:r.msg,best:b.best});}
+function scenEndHTML(m){const c=SCEN.find(x=>x.id===S.scen.id);return `<span class="eyebrow">Scenario · ${esc(c.n)}</span><h2>${m.win?'Uspeh!':'Neuspeh'} · ${m.score}</h2><p class="story">${esc(m.msg)}</p><p class="hint">${m.score>m.best?`Novi lični rekord! Stari je bio ${m.best}.`:`Tvoj rekord: ${m.best}.`}</p><div class="row" style="flex-wrap:wrap"><button class="btn pri" data-a="epidone">Nazad na početak</button>${c.id!=='evropa'?'<button class="btn" data-a="ok">Igraj dalje za sebe</button>':''}</div>`;}
+

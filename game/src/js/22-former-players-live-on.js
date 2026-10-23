@@ -1,0 +1,12 @@
+/* ---------- former players live on: careers after they leave ---------- */
+const BIGC=['Benfika (Portugalija)','Ajaks (Holandija)','Borusija Dortmund (Nemačka)','Inter (Italija)','Atletiko Madrid (Španija)','Olimpik Marselj (Francuska)','Seltik (Škotska)','Galatasaraj (Turska)','Mančester siti (Engleska)','Real Madrid (Španija)','Bajern Minhen (Nemačka)'];
+function exTick(){const L=S.exP||[];if(!L.length)return;const out=[];
+  L.forEach(x=>{if(x.st==='kod kuće'&&!S.squad.some(p=>p.name===x.n)){x.st='penzija';}if(x.st!=='aktivan')return;x.age++;const g=x.age<=23?R(.3,1.2):x.age<=28?R(-.2,.6):x.age<=31?R(-.6,.2):R(-1.2,-.3);x.o=Math.round(clamp(x.o+g,1,20.5)*10)/10;
+    if(x.o>=15.5&&Math.random()<.35){const nc=BIGC.filter(c=>c!==x.club)[Math.min(BIGC.length-2,Math.max(0,Math.floor((x.o-15.5)*2.2+R(0,2))))];if(nc&&nc!==x.club){x.hist.push(`${S.season}. sez: prelazi u ${short(nc)}`);out.push(`${x.n} prelazi u ${short(nc)}.`);x.club=nc;}}
+    else if(x.age>=31&&x.o<14&&Math.random()<.3){const nc=pick(Object.values(world()).filter(c=>c.li<=4).map(c=>c.name));if(nc){x.hist.push(`${S.season}. sez: vraća se u Srbiju, ${short(nc)}`);x.club=nc;}}
+    if(x.o>=15.8&&x.age<=33&&Math.random()<.5){x.caps+=RI(2,6);if(!x.capsSeen){x.capsSeen=1;x.hist.push(`${S.season}. sez: debi za reprezentaciju`);out.push(`${x.n} je debitovao za reprezentaciju Srbije!`);}}
+    if(x.age>=34||(x.age>=32&&Math.random()<.25)){x.st='penzija';x.hist.push(`${S.season}. sez: završava karijeru`);out.push(`${x.n} završava karijeru${x.caps?` sa ${x.caps} nastupa za Srbiju`:''}.`);}
+    else if(x.home&&x.age>=31&&!x.back&&Math.random()<.22){x.back=1;(S.backOffer=S.backOffer||[]).push(x.n);}});
+  if(out.length)news(`Bivši igrači: ${out.slice(0,3).join(' ')}`);}
+function exCard(){const L=(S.exP||[]).slice().reverse();if(!L.length)return '';
+  return `<section class="card"><span class="lbl">Gde su sada</span><h3>Bivši igrači</h3><div class="list">${L.slice(0,10).map(x=>`<div class="li"><span class="pos ${x.pos}">${POSL[x.pos]}</span><span class="grow"><b>${esc(x.n)}</b> <span class="hint">${x.age} god.</span><br><span class="hint">${x.st==='penzija'?'u penziji':x.st==='kod kuće'?'ponovo u '+esc(short(S.club.name)):esc(short(x.club))}${x.caps?` · ${x.caps} za Srbiju`:''} · ${esc(x.hist[x.hist.length-1])}</span></span>${x.st==='aktivan'?`<span class="ovr">${Math.round(x.o)}</span>`:''}</div>`).join('')}</div></section>`;}

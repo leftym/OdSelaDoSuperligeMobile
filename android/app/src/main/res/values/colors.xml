@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The game's own page colour, so there is no flash before it draws. -->
+    <color name="paper">#E7ECE3</color>
+    <color name="pitch">#2D6A3A</color>
+</resources>

@@ -1,0 +1,8 @@
+# Build output: `node game/build.js` writes these, and GitHub rebuilds them on every push.
+game/dist/
+android/app/src/main/assets/
+android/app/build/
+android/.gradle/
+android/build/
+node_modules/
+*.jks

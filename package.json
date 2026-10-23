@@ -1,0 +1,12 @@
+{
+  "name": "od-sela",
+  "private": true,
+  "description": "Od Sela do Superlige: a football club owner game, from a village league to the Serbian Superliga.",
+  "scripts": {
+    "build": "node game/build.js",
+    "test": "node game/build.js && node game/tests/run.js"
+  },
+  "devDependencies": {
+    "playwright": "1.56.0"
+  }
+}
