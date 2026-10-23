@@ -50,7 +50,7 @@ async function newCareer(page, phase = 'p1') {
   }, phase);
 }
 
-// Plays matches with quick-sim, straight through pop-ups, until the season rolls over. Returns a summary per season.
+// Plays matches with quick-sim (a scandal world event docks one club 6 points, which the check allows for), straight through pop-ups, until the season rolls over. Returns a summary per season.
 const PLAY_SEASONS = `(n)=>{const out=[];
  for(let s=0;s<n;s++){let g=0;
   while(S.week<14&&g++<80){S.modal=null;S.mq=[];S.pending=[];
@@ -59,7 +59,7 @@ const PLAY_SEASONS = `(n)=>{const out=[];
     if(S.winter){try{A.winterok();}catch(e){}}}
   let gg=0;while(euroLate()&&gg++<10){A.eurolate();S.modal=null;openMatch('euro');A.quick();A.endmatch();S.modal=null;S.mq=S.mq.filter(x=>x.type!=='euro');}
   out.push({season:S.season,week:S.week,li:S.li,pos:rank().indexOf(0)+1,money:S.money,squad:S.squad.length,
-    played:S.table.map(r=>r.p),pts:S.table.map(r=>r.pts),wdl:S.table.map(r=>r.w*3+r.d)});
+    played:S.table.map(r=>r.p),pts:S.table.map(r=>r.pts),wdl:S.table.map((r,i)=>r.w*3+r.d-(S.wev&&S.wev.k==='skandal'&&S.wev.club===S.teams[i].name?6:0))});
   S.modal=null;S.mq=[];nextSeason();S.modal=null;S.mq=[];
   let k=0;while(S.squad.length<18&&S.fa.length&&k++<6){try{S.money+=S.fa[0].fee||0;A.sign('0');}catch(e){break;}}}
  return out;}`;
