@@ -23,6 +23,8 @@ if (!fs.existsSync(path.join(__dirname, '..', 'dist', 'od-sela.html'))) { consol
       } catch (e) {
         fail++;
         console.log(`  FAIL  ${f.replace('.test.js', '')} › ${name}\n        ${String(e.message || e).split('\n').join('\n        ')}`);
+        // On GitHub, also show the failure on the run's summary page.
+        if (process.env.GITHUB_ACTIONS) console.log(`::error title=${f.replace('.test.js', '')} › ${name}::${String(e.message || e).slice(0, 900).replace(/%/g, '%25').replace(/\r?\n/g, '%0A')}`);
       }
     }
   }
